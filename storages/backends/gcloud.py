@@ -91,7 +91,7 @@ class GoogleCloudStorage(Storage):
     auto_create_bucket = setting('GS_AUTO_CREATE_BUCKET', False)
     auto_create_acl = setting('GS_AUTO_CREATE_ACL', 'projectPrivate')
     default_acl = setting('GS_DEFAULT_ACL')
-    media_url = setting('MEDIA_URL')
+    custom_url = setting('GS_URL')
 
     expiration = setting('GS_EXPIRATION', timedelta(seconds=86400))
 
@@ -269,7 +269,7 @@ class GoogleCloudStorage(Storage):
         else:
             url = blob.generate_signed_url(self.expiration)
         
-        return url.replace(MyBlob._API_ACCESS_ENDPOINT + "/" + self.bucket_name, self.media_url) 
+        return url.replace(MyBlob._API_ACCESS_ENDPOINT + "/" + self.bucket_name, self.custom_url) 
 
     def get_available_name(self, name, max_length=None):
         name = clean_name(name)
