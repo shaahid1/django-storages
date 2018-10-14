@@ -22,7 +22,6 @@ except ImportError:
     raise ImproperlyConfigured("Could not load Google Cloud Storage bindings.\n"
                                "See https://github.com/GoogleCloudPlatform/gcloud-python")
 
-MyBlob._API_ACCESS_ENDPOINT = setting('MEDIA_URL')
 Blob = MyBlob.Blob
 
 class GoogleCloudFile(File):
@@ -92,6 +91,7 @@ class GoogleCloudStorage(Storage):
     auto_create_bucket = setting('GS_AUTO_CREATE_BUCKET', False)
     auto_create_acl = setting('GS_AUTO_CREATE_ACL', 'projectPrivate')
     default_acl = setting('GS_DEFAULT_ACL')
+    media_url = setting('MEDIA_URL')
 
     expiration = setting('GS_EXPIRATION', timedelta(seconds=86400))
 
@@ -265,8 +265,11 @@ class GoogleCloudStorage(Storage):
         blob = self.bucket.blob(self._encode_name(name))
 
         if self.default_acl == 'publicRead':
-            return blob.public_url
-        return blob.generate_signed_url(self.expiration)
+            url = blob.public_url
+        else:
+            url = blob.generate_signed_url(self.expiration)
+        
+        return url.replace(MyBlob._API_ACCESS_ENDPOINT + "/" + self.bucket_name, self.media_url) 
 
     def get_available_name(self, name, max_length=None):
         name = clean_name(name)
