@@ -16,12 +16,14 @@ from storages.utils import (
 
 try:
     from google.cloud.storage.client import Client
-    from google.cloud.storage.blob import Blob
+    import google.cloud.storage.blob as MyBlob
     from google.cloud.exceptions import NotFound
 except ImportError:
     raise ImproperlyConfigured("Could not load Google Cloud Storage bindings.\n"
                                "See https://github.com/GoogleCloudPlatform/gcloud-python")
 
+MyBlob._API_ACCESS_ENDPOINT = setting('MEDIA_URL')
+Blob = MyBlob.Blob
 
 class GoogleCloudFile(File):
     def __init__(self, name, mode, storage):
